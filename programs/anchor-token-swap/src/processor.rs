@@ -11,7 +11,7 @@ use crate::{
     instruction_nonanchor::{
         DepositAllTokenTypes,
         // DepositSingleTokenTypeExactAmountIn,
-        Initialize,
+        // Initialize,
         Swap,
         SwapInstruction,
         WithdrawAllTokenTypes,
@@ -999,10 +999,10 @@ impl Processor {
     ) -> ProgramResult {
         let instruction = SwapInstruction::unpack(input)?;
         match instruction {
-            SwapInstruction::Initialize(Initialize { fees, swap_curve }) => {
-                msg!("Instruction: Init");
-                Self::process_initialize(program_id, fees, swap_curve, accounts, swap_constraints)
-            }
+            // SwapInstruction::Initialize(Initialize { fees, swap_curve }) => {
+            //     msg!("Instruction: Init");
+            //     Self::process_initialize(program_id, fees, swap_curve, accounts, swap_constraints)
+            // }
             SwapInstruction::Swap(Swap {
                 amount_in,
                 minimum_amount_out,

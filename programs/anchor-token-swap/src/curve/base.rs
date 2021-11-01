@@ -13,6 +13,7 @@ use crate::curve::{
     offset::OffsetCurve,
     stable::StableCurve,
 };
+use anchor_lang::prelude::*;
 use arrayref::{array_mut_ref, array_ref, array_refs, mut_array_refs};
 use std::convert::{TryFrom, TryInto};
 use std::fmt::Debug;
@@ -183,6 +184,24 @@ impl Clone for SwapCurve {
         let mut packed_self = [0u8; Self::LEN];
         Self::pack_into_slice(self, &mut packed_self);
         Self::unpack_from_slice(&packed_self).unwrap()
+    }
+}
+
+// TODO: not sure if these are quite correct, just doing something reasonable that compiles for now
+impl AnchorSerialize for SwapCurve {
+    fn serialize<W: borsh::maybestd::io::Write>(
+        &self,
+        writer: &mut W,
+    ) -> borsh::maybestd::io::Result<()> {
+        let mut packed_self = [0u8; Self::LEN];
+        Self::pack_into_slice(self, &mut packed_self);
+        writer.write(&packed_self)?;
+        Ok(())
+    }
+}
+impl AnchorDeserialize for SwapCurve {
+    fn deserialize(buf: &mut &[u8]) -> borsh::maybestd::io::Result<Self> {
+        Ok(Self::unpack_from_slice(&buf).unwrap())
     }
 }
 

@@ -186,6 +186,7 @@ dependencies = [
  "anchor-lang",
  "arbitrary",
  "arrayref",
+ "borsh 0.9.1",
  "enum_dispatch",
  "num-derive",
  "num-traits",

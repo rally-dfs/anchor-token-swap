@@ -19,7 +19,7 @@ use arbitrary::Arbitrary;
 /// Initialize instruction data
 #[repr(C)]
 #[derive(Debug, PartialEq)]
-pub struct Initialize {
+pub struct InitializeInstructionData {
     /// all swap fees
     pub fees: Fees,
     /// swap curve info for pool, including CurveType and anything
@@ -108,7 +108,7 @@ pub enum SwapInstruction {
     ///   6. `[writable]` Pool Token Account to deposit the initial pool token
     ///   supply.  Must be empty, not owned by swap authority.
     ///   7. '[]` Token program id
-    Initialize(Initialize),
+    // Initialize(Initialize),
 
     ///   Swap the tokens in the pool.
     ///
@@ -197,16 +197,16 @@ impl SwapInstruction {
     pub fn unpack(input: &[u8]) -> Result<Self, ProgramError> {
         let (&tag, rest) = input.split_first().ok_or(SwapError::InvalidInstruction)?;
         Ok(match tag {
-            0 => {
-                if rest.len() >= Fees::LEN {
-                    let (fees, rest) = rest.split_at(Fees::LEN);
-                    let fees = Fees::unpack_unchecked(fees)?;
-                    let swap_curve = SwapCurve::unpack_unchecked(rest)?;
-                    Self::Initialize(Initialize { fees, swap_curve })
-                } else {
-                    return Err(SwapError::InvalidInstruction.into());
-                }
-            }
+            // 0 => {
+            //     if rest.len() >= Fees::LEN {
+            //         let (fees, rest) = rest.split_at(Fees::LEN);
+            //         let fees = Fees::unpack_unchecked(fees)?;
+            //         let swap_curve = SwapCurve::unpack_unchecked(rest)?;
+            //         Self::Initialize(Initialize { fees, swap_curve })
+            //     } else {
+            //         return Err(SwapError::InvalidInstruction.into());
+            //     }
+            // }
             1 => {
                 let (amount_in, rest) = Self::unpack_u64(rest)?;
                 let (minimum_amount_out, _rest) = Self::unpack_u64(rest)?;
@@ -273,15 +273,15 @@ impl SwapInstruction {
     pub fn pack(&self) -> Vec<u8> {
         let mut buf = Vec::with_capacity(size_of::<Self>());
         match &*self {
-            Self::Initialize(Initialize { fees, swap_curve }) => {
-                buf.push(0);
-                let mut fees_slice = [0u8; Fees::LEN];
-                Pack::pack_into_slice(fees, &mut fees_slice[..]);
-                buf.extend_from_slice(&fees_slice);
-                let mut swap_curve_slice = [0u8; SwapCurve::LEN];
-                Pack::pack_into_slice(swap_curve, &mut swap_curve_slice[..]);
-                buf.extend_from_slice(&swap_curve_slice);
-            }
+            // Self::Initialize(Initialize { fees, swap_curve }) => {
+            //     buf.push(0);
+            //     let mut fees_slice = [0u8; Fees::LEN];
+            //     Pack::pack_into_slice(fees, &mut fees_slice[..]);
+            //     buf.extend_from_slice(&fees_slice);
+            //     let mut swap_curve_slice = [0u8; SwapCurve::LEN];
+            //     Pack::pack_into_slice(swap_curve, &mut swap_curve_slice[..]);
+            //     buf.extend_from_slice(&swap_curve_slice);
+            // }
             Self::Swap(Swap {
                 amount_in,
                 minimum_amount_out,
@@ -333,49 +333,43 @@ impl SwapInstruction {
     }
 }
 
+// TODO: these are just here for convenience/not used elsewhere in the program,
+// just commenting out for the compiler but can probably add a version of them back in
+
 /// Creates an 'initialize' instruction.
-pub fn initialize(
-    program_id: &Pubkey,
-    token_program_id: &Pubkey,
-    swap_pubkey: &Pubkey,
-    authority_pubkey: &Pubkey,
-    token_a_pubkey: &Pubkey,
-    token_b_pubkey: &Pubkey,
-    pool_pubkey: &Pubkey,
-    fee_pubkey: &Pubkey,
-    destination_pubkey: &Pubkey,
-    fees: Fees,
-    swap_curve: SwapCurve,
-) -> Result<Instruction, ProgramError> {
-    let init_data = SwapInstruction::Initialize(Initialize { fees, swap_curve });
-    let data = init_data.pack();
+// pub fn initialize(
+//     program_id: &Pubkey,
+//     token_program_id: &Pubkey,
+//     swap_pubkey: &Pubkey,
+//     authority_pubkey: &Pubkey,
+//     token_a_pubkey: &Pubkey,
+//     token_b_pubkey: &Pubkey,
+//     pool_pubkey: &Pubkey,
+//     fee_pubkey: &Pubkey,
+//     destination_pubkey: &Pubkey,
+//     fees: Fees,
+//     swap_curve: SwapCurve,
+// ) -> Result<Instruction, ProgramError> {
+//     let init_data = SwapInstruction::Initialize(Initialize { fees, swap_curve });
+//     let data = init_data.pack();
 
-    let accounts = vec![
-        AccountMeta::new(*swap_pubkey, true),
-        AccountMeta::new_readonly(*authority_pubkey, false),
-        AccountMeta::new_readonly(*token_a_pubkey, false),
-        AccountMeta::new_readonly(*token_b_pubkey, false),
-        AccountMeta::new(*pool_pubkey, false),
-        AccountMeta::new_readonly(*fee_pubkey, false),
-        AccountMeta::new(*destination_pubkey, false),
-        AccountMeta::new_readonly(*token_program_id, false),
-    ];
+//     let accounts = vec![
+//         AccountMeta::new(*swap_pubkey, true),
+//         AccountMeta::new_readonly(*authority_pubkey, false),
+//         AccountMeta::new_readonly(*token_a_pubkey, false),
+//         AccountMeta::new_readonly(*token_b_pubkey, false),
+//         AccountMeta::new(*pool_pubkey, false),
+//         AccountMeta::new_readonly(*fee_pubkey, false),
+//         AccountMeta::new(*destination_pubkey, false),
+//         AccountMeta::new_readonly(*token_program_id, false),
+//     ];
 
-    // TODO: can probably call process_initialize directly instead of returning Instruction here
-    // (and need to replace accounts/data with the actual
-    // program_id: &Pubkey,
-    // fees: Fees,
-    // swap_curve: SwapCurve,
-    // accounts: &[AccountInfo],
-    // swap_constraints: &Option<SwapConstraints>,
-    //)
-
-    Ok(Instruction {
-        program_id: *program_id,
-        accounts,
-        data,
-    })
-}
+//     Ok(Instruction {
+//         program_id: *program_id,
+//         accounts,
+//         data,
+//     })
+// }
 
 /// Creates a 'deposit_all_token_types' instruction.
 pub fn deposit_all_token_types(
@@ -583,51 +577,51 @@ mod tests {
 
     use crate::curve::{base::CurveType, stable::StableCurve};
 
-    #[test]
-    fn pack_intialize() {
-        let trade_fee_numerator: u64 = 1;
-        let trade_fee_denominator: u64 = 4;
-        let owner_trade_fee_numerator: u64 = 2;
-        let owner_trade_fee_denominator: u64 = 5;
-        let owner_withdraw_fee_numerator: u64 = 1;
-        let owner_withdraw_fee_denominator: u64 = 3;
-        let host_fee_numerator: u64 = 5;
-        let host_fee_denominator: u64 = 20;
-        let fees = Fees {
-            trade_fee_numerator,
-            trade_fee_denominator,
-            owner_trade_fee_numerator,
-            owner_trade_fee_denominator,
-            owner_withdraw_fee_numerator,
-            owner_withdraw_fee_denominator,
-            host_fee_numerator,
-            host_fee_denominator,
-        };
-        let amp: u64 = 1;
-        let curve_type = CurveType::Stable;
-        let calculator = Box::new(StableCurve { amp });
-        let swap_curve = SwapCurve {
-            curve_type,
-            calculator,
-        };
-        let check = SwapInstruction::Initialize(Initialize { fees, swap_curve });
-        let packed = check.pack();
-        let mut expect = vec![0u8];
-        expect.extend_from_slice(&trade_fee_numerator.to_le_bytes());
-        expect.extend_from_slice(&trade_fee_denominator.to_le_bytes());
-        expect.extend_from_slice(&owner_trade_fee_numerator.to_le_bytes());
-        expect.extend_from_slice(&owner_trade_fee_denominator.to_le_bytes());
-        expect.extend_from_slice(&owner_withdraw_fee_numerator.to_le_bytes());
-        expect.extend_from_slice(&owner_withdraw_fee_denominator.to_le_bytes());
-        expect.extend_from_slice(&host_fee_numerator.to_le_bytes());
-        expect.extend_from_slice(&host_fee_denominator.to_le_bytes());
-        expect.push(curve_type as u8);
-        expect.extend_from_slice(&amp.to_le_bytes());
-        expect.extend_from_slice(&[0u8; 24]);
-        assert_eq!(packed, expect);
-        let unpacked = SwapInstruction::unpack(&expect).unwrap();
-        assert_eq!(unpacked, check);
-    }
+    // #[test]
+    // fn pack_intialize() {
+    //     let trade_fee_numerator: u64 = 1;
+    //     let trade_fee_denominator: u64 = 4;
+    //     let owner_trade_fee_numerator: u64 = 2;
+    //     let owner_trade_fee_denominator: u64 = 5;
+    //     let owner_withdraw_fee_numerator: u64 = 1;
+    //     let owner_withdraw_fee_denominator: u64 = 3;
+    //     let host_fee_numerator: u64 = 5;
+    //     let host_fee_denominator: u64 = 20;
+    //     let fees = Fees {
+    //         trade_fee_numerator,
+    //         trade_fee_denominator,
+    //         owner_trade_fee_numerator,
+    //         owner_trade_fee_denominator,
+    //         owner_withdraw_fee_numerator,
+    //         owner_withdraw_fee_denominator,
+    //         host_fee_numerator,
+    //         host_fee_denominator,
+    //     };
+    //     let amp: u64 = 1;
+    //     let curve_type = CurveType::Stable;
+    //     let calculator = Box::new(StableCurve { amp });
+    //     let swap_curve = SwapCurve {
+    //         curve_type,
+    //         calculator,
+    //     };
+    //     let check = SwapInstruction::Initialize(Initialize { fees, swap_curve });
+    //     let packed = check.pack();
+    //     let mut expect = vec![0u8];
+    //     expect.extend_from_slice(&trade_fee_numerator.to_le_bytes());
+    //     expect.extend_from_slice(&trade_fee_denominator.to_le_bytes());
+    //     expect.extend_from_slice(&owner_trade_fee_numerator.to_le_bytes());
+    //     expect.extend_from_slice(&owner_trade_fee_denominator.to_le_bytes());
+    //     expect.extend_from_slice(&owner_withdraw_fee_numerator.to_le_bytes());
+    //     expect.extend_from_slice(&owner_withdraw_fee_denominator.to_le_bytes());
+    //     expect.extend_from_slice(&host_fee_numerator.to_le_bytes());
+    //     expect.extend_from_slice(&host_fee_denominator.to_le_bytes());
+    //     expect.push(curve_type as u8);
+    //     expect.extend_from_slice(&amp.to_le_bytes());
+    //     expect.extend_from_slice(&[0u8; 24]);
+    //     assert_eq!(packed, expect);
+    //     let unpacked = SwapInstruction::unpack(&expect).unwrap();
+    //     assert_eq!(unpacked, check);
+    // }
 
     #[test]
     fn pack_swap() {
