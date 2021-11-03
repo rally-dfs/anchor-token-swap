@@ -49,15 +49,15 @@
     "@ethersproject/logger" "^5.5.0"
     hash.js "1.1.7"
 
-"@project-serum/anchor-cli@^0.17.0":
-  version "0.17.0"
-  resolved "https://registry.yarnpkg.com/@project-serum/anchor-cli/-/anchor-cli-0.17.0.tgz#10b25242b470ac0bee2347efd5cfd56b983683b5"
-  integrity sha512-hDS/DgHE9bnJzcaIsedo/2z1qlbovJGIky+p1dCLNtfDeLSGttRG21+7PydI8WyfqSXGoQa3B1tbrrLvAlpwnQ==
+"@project-serum/anchor-cli@^0.18.0":
+  version "0.18.2"
+  resolved "https://registry.yarnpkg.com/@project-serum/anchor-cli/-/anchor-cli-0.18.2.tgz#748ce259fa693fb3589a96aa9f82bd373c078948"
+  integrity sha512-zZvLSa0DvsjsKSK8cU7ENqPB1tQ8WCT6dTY2IaJjWdG0UvXUTri8phnYyF5+Zti+frTdKyggOtI+i1QApOWhRQ==
 
-"@project-serum/anchor@^0.17.0":
-  version "0.17.0"
-  resolved "https://registry.yarnpkg.com/@project-serum/anchor/-/anchor-0.17.0.tgz#99a2cc59cae2939c1db1197950b7b606319ea7a8"
-  integrity sha512-vctZHZD5rUP1WXUUaJFdKl+1u0dE+O2+jejmYcb0InAZiwXdGAW8mX47U902voT94PdCr0aNHuyOQ8I75nfinw==
+"@project-serum/anchor@^0.18.0":
+  version "0.18.0"
+  resolved "https://registry.yarnpkg.com/@project-serum/anchor/-/anchor-0.18.0.tgz#867144282e59482230f797f73ee9f5634f846061"
+  integrity sha512-WTm+UB93MoxyCbjnHIibv/uUEoO/5gL4GEtE/aMioLF8Z4i0vCMPnvAN0xpk9VBu3t7ld2DcCE/L+6Z7dwU++w==
   dependencies:
     "@project-serum/borsh" "^0.2.2"
     "@solana/web3.js" "^1.17.0"
